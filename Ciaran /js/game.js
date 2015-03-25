@@ -6,6 +6,8 @@ var numbers = ["And", "Or", "Not", "Xor"];
 var inputs = null;
 var outputs = null;
 var connections = null;
+var waveSignals = null;
+var waveSignalNames = null;
 loadLevelInfo(loader);
 
 function loadLevelInfo(callback){
@@ -16,24 +18,30 @@ function loadLevelInfo(callback){
              var outputData = eval("data.Level"+levelNum+".Renderer_Output");
              var inputData = eval("data.Level"+levelNum+".Renderer_Input");
              var gateData = eval("data.Level"+levelNum+".Renderer_Gates");
-             callback(connectionData,outputData,inputData,gateData);
+             var signals = eval("data.Level"+levelNum+".Renderer_Wave_Signals");
+             var signalsNames = eval("data.Level"+levelNum+".Renderer_Wave_Name");
+             callback(connectionData,outputData,inputData,gateData,signals,signalsNames);
     })
 
 }  
 
-function loader(connectionData,outputData,inputData,gateData){
+function loader(connectionData,outputData,inputData,gateData,signals,signalsNames){
     connections = connectionData;
     console.log(connections);
     outputs = outputData;
     inputs = inputData;
     numbers = gateData;
+    waveSignals = signals;
+    waveSignalNames = signalsNames;
 
-    init();
+    console.log(waveSignalNames)
+
+    $(init());
 }
 
 
 function init() {
-
+    
     gatesDropped = 0;
     outputResult = []; 
 
@@ -81,12 +89,11 @@ function init() {
 
     }
 
-    waveInput([1, 1, 1, 1], "A");
-    waveInput([0, 0, 0, 0], "B");
-    waveInput([0, 0, 1, 1], "C");
-    waveInput([0, 1, 0, 1], "D");
-    waveInput([0, 0, 0, 0], "Y");
-    waveInput([0, 0, 0, 0], "Z");
+    for(var i = 0; i<waveSignalNames.length; i++){
+        waveInput(waveSignals[i],waveSignalNames[i]);
+            console.log(i);
+    }
+
 
 
 
@@ -174,11 +181,11 @@ function slotInteraction(event, ui) {
             
             alert("Correct")
             levelNum++;
-            if(levelNum>1){
+            if(levelNum>2){
                 alert("Game Over");
                 window.location.href="http://localhost:8000/";
             }
-            loadLevelInfo();
+            loadLevelInfo(loader);
             init();
             
 

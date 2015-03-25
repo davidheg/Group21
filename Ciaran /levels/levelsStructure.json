@@ -1,13 +1,7 @@
 {
 	"Level0":
 	{
-		"Gates":
-		[
-			{"And": 2},
-			{"Not": 2},
-			{"Or": 2},
-			{"Xor": 2}
-		],
+		
 		"Inputs":
 		[
 			{"Name": "A","Signal": [1, 1, 1, 1]},
@@ -32,7 +26,9 @@
 
 		"Renderer_Output":["Y","Z"],
 		"Renderer_Input":["A", "B", "C","D"],
-		"Renderer_Gates":["And", "Or", "Not", "Xor"]
+		"Renderer_Gates":["And", "Or", "Not", "Xor"],
+		"Renderer_Wave_Name":["A", "B", "C","D","Y","Z"],
+		"Renderer_Wave_Signals":[[1, 1, 1, 1],[0, 0, 0, 0],[0, 0, 1, 1],[0, 1, 0, 1],[0, 0, 0, 0],[0, 0, 0, 0]]
 
 
 		
@@ -41,10 +37,7 @@
 
 	"Level1":
 	{
-		"Gates":
-		[
-			{"And": 2}
-		],
+		
 		"Inputs":
 		[
 			{"Name": "A","Signal": [1, 1, 1, 1]},
@@ -67,7 +60,44 @@
 
 		"Renderer_Output":["Y","Z"],
 		"Renderer_Input":["A", "B"],
-		"Renderer_Gates":["And","Not"]
+		"Renderer_Gates":["And","Not"],
+		"Renderer_Wave_Name":["A", "B","Y","Z"],
+		"Renderer_Wave_Signals":[[1, 1, 1, 1],[0, 0, 0, 0],[0, 0, 0, 0],[0, 0, 0, 0]]
+
+
+		
+
+	},
+
+	"Level2":
+	{
+		
+		"Inputs":
+		[
+			{"Name": "A","Signal": [1, 1, 1, 1]},
+			{"Name": "B","Signal": [0, 0, 0, 0]},
+			{"Name": "C","Signal": [0, 1, 0, 1]}
+			
+		],
+		"Outputs":
+		[
+			{"Name": "Y","Source": "Slot0", "Signal": [0, 0, 0, 0]},
+			{"Name": "W","Source": "Slot1", "Signal": [1, 1, 1, 1]}
+			
+		],
+		"Slots":
+		[
+			{"Name": "Slot0", "Inputs": ["A", "B"]},
+			{"Name": "Slot1", "Inputs": ["A","C"]}
+			
+		],
+		"Renderer_Connections":[["A", "Slot0"],["B", "Slot0"],["Slot0", "Y"],["A","Slot1"],["C","Slot1"],["Slot1","W"]],
+
+		"Renderer_Output":["Y","Z","W"],
+		"Renderer_Input":["A","B","C"],
+		"Renderer_Gates":["And","Or"],
+		"Renderer_Wave_Name":["A","B","C","Y","W"],
+		"Renderer_Wave_Signals":[[1, 1, 1, 1],[0, 0, 0, 0],[0, 1, 0, 1],[0, 0, 0, 0],[1, 1, 1, 1]]
 
 
 		
