@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<!--Imported libraries-->
+		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+		<!--<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.9/jquery-ui.min.js"></script>-->
+		<script src="jquery-ui-1.11.4/jquery-ui.js"></script>
+		<link rel = "stylesheet" type = "text/css" href = "render.css"/>
+		
+		<title>
+		
+		</title>
+	
+	</head>
+	
+	<body>
+		<!--Main Renderer script-->
+		<script type= "text/javascript">
+			var CONSTANT_HEIGHT = 600;
+			var CONSTANT_WIDTH = 900;
+			var Renderer = new Object();
+			var gatePositions = [4]; 
+			var andImg = "AND.png";
+			var notImg = "NOT.png";
+			var orImg = "OR.png";
+			var xorImg = "XOR.png";
+			Renderer.putGateBar = function (gates, max) 
+			{
+				var gateBar = document.createElement("div");
+				gateBar.id = "gateBar";
+				var width = (CONSTANT_WIDTH/CONSTANT_HEIGHT)*100-20;
+				gateBar.style.width = width + "vh";
+				var gateSup, gateName;
+				for(var i = 0; i < max; i++)
+				{
+					gateName = Object.getOwnPropertyNames(gates[i]);
+					gateSup = this.addGateSupply(gates[i][gateName], i, max, gateName, 25);
+					gateBar.appendChild(gateSup);
+				}
+				gateBar.style.top = '70vh';
+				document.body.appendChild(gateBar);
+			};
+			
+			Renderer.addGateSupply = function(amount, i, max, gate, width)
+			{
+				var gateSup = document.createElement("div");
+				gateSup.id = "gateSupply";
+				gateSup.className = "block";
+				gateSup.innerHTML = gate;
+				gateSup.style.width = width + "%";
+				
+				if(i < 2)
+				{
+					gateSup.style.top = 0;
+				}
+				else{
+					gateSup.style.top = "50%";
+				}
+				if(i === 0 || i === 2)
+				{
+					gateSup.style.left = 50 + "%";
+				}
+				else{
+					gateSup.style.left = 50 + width + "%";
+				}
+				
+				var drag = this.addGate(gate, width, i);
+				document.body.appendChild(drag);
+				
+				var supply = document.createElement("div");
+				supply.id = gate;
+				supply.className = 'supplyDiv';
+				supply.innerHTML = amount;
+				supply.style.color = "green";
+				gateSup.appendChild(supply);
+				
+				return gateSup;
+			};
+			
+			Renderer.addGate = function(gateName, width, i)
+			{
+				var gate = document.createElement("div");
+				gate.id = "gate"+i;
+				gate.innerHTML = gateName;
+				gate.className = 'drag '+gateName;
+				var img = notImg;
+				console.log(gateName);
+				if(gateName == "And")
+					img = andImg;
+				if(gateName == "Or")
+					img = orImg;
+				if(gateName == "Not")
+				{
+					gate.style.backgroundSize = "90%102%";
+					img = notImg;
+				}
+				if(gateName == "Xor")
+					img = xorImg;
+				gate.style.backgroundImage = "url('" + img + "')";
+				gate.style.width = width - 5 + "vh";
+				var top = 0;
+				var left = 0;
+				if(i < 2)
+				{
+					top = 70;
+					gate.style.top = top +"vh";
+				}
+				else{
+					top = 85;
+					gate.style.top = top +"vh";
+				}
+				if(i === 0 || i === 2)
+				{
+					left = (CONSTANT_WIDTH*0.5/CONSTANT_HEIGHT)*100 - 1.5;
+					gate.style.left =  left + "vh";
+					gatePositions[i] = [top, left];
+				}
+				else{
+					left = (CONSTANT_WIDTH*0.5/CONSTANT_HEIGHT)*100 + 4.5 + width;
+					gate.style.left = left + "vh";
+					gatePositions[i] = [top, left];
+				}
+				return gate;
+			};
+			
+			Renderer.putSig = function (name, x, y, type) 
+			{
+				var top = y;
+				var div = document.createElement("div");
+				div.innerHTML = name;
+				div.className = "circle";
+				div.tag = name;
+				div.style.top = (top * (100/(CONSTANT_HEIGHT+(CONSTANT_HEIGHT*0.2)))) - 3 + "vh";
+				div.style.left = (100 * (x/(CONSTANT_HEIGHT+(CONSTANT_HEIGHT*0.2)))) + "vh";
+				document.body.appendChild(div);
+			};
+			
+			Renderer.makeLevel = function(json)
+			{
+				$.getJSON( json, function(data) {
+					
+					var wires = [];
+					var name;
+					var i;
+					for(i = 0; i < data.Level.Wires.length; i++)
+					{
+						wires[i] = data.Level.Wires[i];
+						Renderer.makeWire(i, wires[i].Waypoints);
+					}
+					
+					var output = [];
+					for(i = 0; i < data.Level.Outputs.length; i++)
+					{
+						output[i] = data.Level.Outputs[i];
+						Renderer.putSig(output[i].Name, output[i].X, output[i].Y, "out");
+					}
+					
+					var input = [];
+					var name;
+					for(i = 0; i < data.Level.Inputs.length; i++)
+					{
+						input[i] = data.Level.Inputs[i];
+						Renderer.putSig(input[i].Name, input[i].X, input[i].Y, "in");
+					}
+					
+					var slots = [];
+					var name;
+					for(i = 0; i < data.Level.Slots.length; i++)
+					{
+						slots[i] = data.Level.Slots[i];
+					}
+					Renderer.placeSlots(slots);
+					for(i = 0; i < data.Level.Slots.length; i++)
+					{
+						$(".slot").droppable({
+							hoverClass: 'hovered',
+							tolerance: 'pointer',
+							out: function(ui){	
+								$(this).droppable( "option", "disabled", false );
+							},
+							accept: function(ui){
+								//if (e.hasClass($(this).attr('accept'))) return true; }
+								console.log($(this).attr('id'));
+								if(ui.html() === "NOT")
+									if($(this).attr('id').substring(0, 3) === "not")
+										isValid = true;
+									else isValid = false;
+								else if($(this).attr('id').substring(0, 3) === "not")
+									isValid = false;
+								else isValid = true;
+								return isValid;
+							},
+							drop: function(event, ui){
+								var isValid = false;
+								var thisType = $(this).id;
+								var cardNumber = ui.innerHTML;
+								
+								if(isValid)
+								{
+									$(this).droppable('option', 'disabled', true);
+									ui.draggable.position( { of: $(this), my: 'left+20vh', at: 'left' } );
+									ui.draggable.attr('border', 'hidden');
+								}
+							} 
+						});
+					}
+					
+					var gate = [];
+					for(i = 0; i < data.Level.Gates.length; i++)
+					{
+						gate[i] = data.Level.Gates[i];
+					}
+					
+					Renderer.putGateBar(gate, data.Level.Gates.length);
+					for(i = 0; i < data.Level.Gates.length; i++)
+					{
+						$('.drag').draggable( {
+							containment: 'body',
+							start: function(event, ui){
+								if(event)
+								{
+									//$(this).addClass(' dragging');
+									var name = $(this).html();
+									var thisDiv = document.getElementById(name);
+									thisDiv.innerHTML = parseInt(thisDiv.innerHTML) - 1;
+								}
+							},
+							stop: function(){
+								//$(this).setClass('drag');
+							},
+							cursor: 'move',
+							scroll: false,
+							revert: function(event, ui) {
+								var name = $(this).html();
+								var thisDiv = document.getElementById(name);
+								if(!event)
+									thisDiv.innerHTML = parseInt(thisDiv.innerHTML) + 1;
+								var string = $(this).attr('id');
+								var j = string.substring(4, 5);
+								$(this).data("uiDraggable").originalPosition = {
+									top  : gatePositions[j][0]+"vh",
+									left : gatePositions[j][1]+"vh"
+								};
+								return !event;
+							}
+						});
+						$('.drag').droppable({
+							drop: function(event, ui){	
+								$(".slot").droppable( "option", "disabled", false );
+							}
+						})
+					}
+					
+				});
+			}
+			
+			Renderer.makeWire = function(j, waypoints)
+			{
+				var wire, height;
+				var compare = 1;
+				var firstX, secondX, firtY, secondY;
+				for(var i = 0; i < waypoints.length-1; i++)
+				{
+					height = 0;
+					compare = 1;
+					wire = document.createElement("div");
+					wire.className = "wire";
+					if(this.isHorizontal(waypoints[i].X, waypoints[i + compare].X))
+					{
+						wire.style.height = 1;
+						wire.style.width = (Math.abs(waypoints[i].X - waypoints[i+compare].X))/(CONSTANT_HEIGHT+(CONSTANT_HEIGHT*0.2)) * 100 + "vh";
+						
+					}
+					else
+					{
+						wire.style.width = 1;
+						height = (Math.abs(waypoints[i].Y - waypoints[i+compare].Y))/(CONSTANT_HEIGHT+(CONSTANT_HEIGHT*0.2)) * 100 + "vh";
+						wire.style.height = height;
+					}
+					if(height !== 0)
+					{
+						compare = this.getCompare(waypoints, i);
+					}
+					else
+					{
+						compare = 0;
+					}
+					wire.style.top = ((waypoints[i+compare].Y/(CONSTANT_HEIGHT+(CONSTANT_HEIGHT*0.2)))) * 100 + "vh";
+					wire.style.left = ((waypoints[i].X/(CONSTANT_HEIGHT+(CONSTANT_HEIGHT*0.2)))) * 100 + "vh";
+					wire.id = "wire" + j + "part" + i;
+					document.body.appendChild(wire);
+				}
+			}
+			
+			Renderer.getCompare = function(waypoints, i)
+			{
+					if(waypoints[i].Y - waypoints[i+1].Y < 0)
+					{
+						return 0;
+					}
+					else return 1;
+			}
+			
+			Renderer.isHorizontal = function(firstX, secondX)
+			{
+				if(firstX === secondX)
+				{
+					 return false;
+				}
+				else
+				{
+					return true;
+				}
+			}
+			
+			Renderer.placeSlots = function(slots)
+			{
+				var slot, size;
+				for(var i = 0; i < slots.length; i++)
+				{
+					slot = document.createElement("div");
+					if(slots[i].Inputs.length === 1)
+						slot.id = "not slot"+i;
+					else
+						slot.id = "slot"+i;
+					slot.className = "slot";
+					size =  slots[i].Size /(CONSTANT_HEIGHT+(CONSTANT_HEIGHT*0.2)) * 100;
+					slot.style.width = size + "vh";
+					slot.style.height = size  + "vh";
+					slot.style.top = slots[i].Y/(CONSTANT_HEIGHT+(CONSTANT_HEIGHT*0.2)) * 100 + "vh";
+					slot.style.left = slots[i].X/(CONSTANT_HEIGHT+(CONSTANT_HEIGHT*0.2)) * 100 + "vh";
+					document.body.appendChild(slot);
+				}
+			}
+			var lev1 = "http://www.json-generator.com/api/json/get/cnpwsnRAGG?indent=2";
+			var lev2 = "http://www.json-generator.com/api/json/get/cgQtuRzQEi?indent=2";
+			Renderer.makeLevel(lev2);
+		</script>
+	</body>
+</html>

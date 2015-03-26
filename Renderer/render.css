@@ -1,0 +1,94 @@
+body{
+	background-image: url(http://cdn5.howtogeek.com/wp-content/uploads/gg/up/sshot50e32fce7978a.jpg);
+	height:100vh;
+	width: 100vw;
+}
+
+*{
+	margin: 0px;
+	padding: 0px;
+	overflow: hidden;
+}
+
+.window{
+	position: absolute;
+	height: 70vh;
+}
+
+.circle{
+	position: absolute;
+	width: 6vh; 
+	height: 6vh;
+	background-color: #def1c8;
+	color: #485e5e;
+	-moz-border-radius: 3vh;
+	-webkit-border-radius:3vh;
+	border-radius: 3vh;
+	text-align: center;
+	line-height: 6vh;
+	font-size: 4vh;
+}
+
+body #gateBar{
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	z-index: -3;
+	height: 30vh;
+	background-color: blue;
+}
+
+#gateBar #gateSupply{
+	position: absolute;
+	height: 15vh;
+	text-align: center;
+	font-size: 7vh;
+	z-index: -2;
+	line-height: 15vh;
+	color: #000000;
+	border: 3px solid yellow;
+}
+
+.supplyDiv{
+	position: absolute;
+	overflow: visible;
+	bottom: 0;
+	right: 0;
+	z-index: -1;
+	height: 50%;
+	width:15%;
+	line-height: 3px;
+	font-size: 50%;
+}
+
+.drag{
+	position: absolute;
+	background-size: 95%90%;
+	background-repeat: no-repeat;
+	background-position: left+1vh bottom;
+	height: 15vh;
+	text-align: center;
+	font-size: 7vh;
+	line-height: 15vh;
+	color: #000000;
+}
+
+.ui-draggable-dragging{
+  -moz-box-shadow: 0 0 .5em rgba(0, 0, 0, .8);
+  -webkit-box-shadow: 0 0 .5em rgba(0, 0, 0, .8);
+  box-shadow: 0 0 .5em #FFFFFF;
+}
+
+.wire{
+	position: absolute;
+	border: 0.5vh solid red;
+}
+
+.slot{
+	position: absolute;
+	padding-left: 2vh;
+	-moz-border-radius: 3vh;
+	-webkit-border-radius:3vh;
+	border-radius: 3vh;
+	background-color: #574FBE;
+}
