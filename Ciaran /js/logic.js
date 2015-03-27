@@ -1,4 +1,7 @@
-//Works out the outputs of the gates
+/*Works out the outputs of the gates.
+Passes the singals to the selected gates
+and returns the output*/
+
 function process(inputs, gate) {
     var result = 0;
     switch (gate) {

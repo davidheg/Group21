@@ -1,8 +1,8 @@
-// var gatesDropped = 0;
+var gatesDropped = 0;
 var levelNum = 1;
 var maxLevelNum = 5;
 var outputResult = [];
-var numbers = ["And", "Or", "Not", "Xor"];
+var gates = ["And", "Or", "Not", "Xor"];
 var inputs = null;
 var outputs = null;
 var connections = null;
@@ -10,6 +10,7 @@ var waveSignals = null;
 var waveSignalNames = null;
 loadLevelInfo(loader);
 
+//This function connects to the JSON level file and loads in the current level
 function loadLevelInfo(callback){
     $.getJSON("/levels/levelsStructure.json", function(data) {
 
@@ -25,12 +26,13 @@ function loadLevelInfo(callback){
 
 }  
 
+//This is the callback function from the getJSON jQuery
 function loader(connectionData,outputData,inputData,gateData,signals,signalsNames){
     connections = connectionData;
     console.log(connections);
     outputs = outputData;
     inputs = inputData;
-    numbers = gateData;
+    gates = gateData;
     waveSignals = signals;
     waveSignalNames = signalsNames;
 
@@ -40,6 +42,7 @@ function loader(connectionData,outputData,inputData,gateData,signals,signalsName
 }
 
 
+//Initial loop for the game
 function init() {
     
     gatesDropped = 0;
@@ -89,25 +92,28 @@ function init() {
 
     }
 
+
+    //Draw the Wave Signals to the Screen
     for(var i = 0; i<waveSignalNames.length; i++){
         waveInput(waveSignals[i],waveSignalNames[i]);
             console.log(i);
     }
 
 
-
-
+    //Draw the inputs to the screen
     for (var i = 0; i < inputs.length; i++) {
         $('<div class="inputBox">' + inputs[i] + '<br></div><br><br>').data('number', inputs[i]).attr('id', inputs[i]).appendTo('#inputSignal');
     }
 
+    //Draw the outputs to the screen
     for (var i = 0; i < outputs.length; i++) {
         $('<div class="outputBox">' + outputs[i] + '</div><br><br>').data('number', outputs[i]).attr('id', outputs[i]).appendTo('#outputSignal');
     }
 
 
-    for (var i = 0; i < numbers.length; i++) {
-        $('<div class="gate well col-xs-4">' + numbers[i] + '</div>').data('number', numbers[i]).attr('id', 'card' + numbers[i]).appendTo('#gateStock').draggable({
+    //Create the Gates to use for the slots
+    for (var i = 0; i < gates.length; i++) {
+        $('<div class="gate well col-xs-4">' + gates[i] + '</div>').data('gates', gates[i]).attr('id', 'gate' + gates[i]).appendTo('#gateStock').draggable({
             containment: '#content',
             stack: '#gateStock div',
             cursor: 'move',
@@ -116,14 +122,17 @@ function init() {
     }
 
     // Create the Gate slots
-    for (var i = 1; i <= numbers.length; i++) {
-        $('<div class="slot well">' + "Slot " + (i - 1) + '</div><br><br>').data('number', i).attr('id', "Slot" + (i - 1)).appendTo('#gateSlots').droppable({
+    for (var i = 1; i <= gates.length; i++) {
+        $('<div class="slot well">' + "Slot " + (i - 1) + '</div><br><br>').data('gates', i).attr('id', "Slot" + (i - 1)).appendTo('#gateSlots').droppable({
             accept: '#gateStock div',
             hoverClass: 'hovered',
             drop: slotInteraction
         });
     }
 
+    
+    /*This function takes in the id of two divs and
+    draws a line between them using jsPlumb */
     function connect(start, end) {
         jsPlumb.ready(function() {
             jsPlumb.connect({
@@ -147,9 +156,11 @@ function init() {
 
 }
 
+
+//Manages the slot gate interaction
 function slotInteraction(event, ui) {
-    var slotNumber = $(this).data('number');
-    var gateNumber = ui.draggable.data('number');
+    var slotNumber = $(this).data('gates');
+    var gateNumber = ui.draggable.data('gates');
 
     console.log("Slot:" + slotNumber);
     console.log("GateType:" + gateNumber);
@@ -169,19 +180,21 @@ function slotInteraction(event, ui) {
 
     console.log(gatesDropped);
 
-    if (gatesDropped == numbers.length) {
+    if (gatesDropped == gates.length) {
         console.log(outputResult);
         gateProcessor(outputResult,displayMessage,levelNum);
         
     }
 
+    /*This is a callback function to print the result of the 
+    logic test to screen*/
     function displayMessage(verdict){
             console.log(verdict);
         if(verdict == true){
             
             alert("Correct")
             levelNum++;
-            if(levelNum>2){
+            if(levelNum>3){
                 alert("Game Over");
                 window.location.href="http://localhost:8000/";
             }

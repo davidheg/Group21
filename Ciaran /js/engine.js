@@ -1,4 +1,4 @@
-
+//Gets the gate inputs/outputs from the JSON level file
 function gateProcessor(gatesSelected,callback,level) {
     
         $.getJSON("/levels/levelsStructure.json", function(data) {
@@ -11,6 +11,10 @@ function gateProcessor(gatesSelected,callback,level) {
         })
 
 
+    /*Foward Proprogation Algorithm. This takes the input signals
+    passes them through a gate. After that it gets the returned output 
+    and stores it in a dictionary. On the preceeding iterations the dictionary
+    is searched if the result is from a slot.  */
     function FPA(data,gatesSelected,level) {
         var gateInSlot = gatesSelected;
         var dict = {};
@@ -51,7 +55,9 @@ function gateProcessor(gatesSelected,callback,level) {
         $.each(eval(urlc), function(k, output) {
             var sourceName = output.Source;
             var sourceValue = output.Signal;
+            console.log("CHECKER")
             console.log(sourceName+" "+sourceValue)
+            console.log(dict[sourceName].toString())
             if(dict[sourceName].toString() === sourceValue.toString()){
                 if(outcome !=false){
                 outcome = true;
